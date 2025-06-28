@@ -1,0 +1,298 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 0%);
+  --foreground: hsl(120, 100%, 50%);
+  --muted: hsl(120, 50%, 15%);
+  --muted-foreground: hsl(120, 30%, 60%);
+  --popover: hsl(0, 0%, 0%);
+  --popover-foreground: hsl(120, 100%, 50%);
+  --card: hsl(0, 0%, 0%);
+  --card-foreground: hsl(120, 100%, 50%);
+  --border: hsl(120, 50%, 30%);
+  --input: hsl(120, 50%, 15%);
+  --primary: hsl(120, 100%, 50%);
+  --primary-foreground: hsl(0, 0%, 0%);
+  --secondary: hsl(120, 50%, 15%);
+  --secondary-foreground: hsl(120, 100%, 50%);
+  --accent: hsl(120, 50%, 15%);
+  --accent-foreground: hsl(120, 100%, 50%);
+  --destructive: hsl(0, 100%, 50%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --ring: hsl(120, 100%, 50%);
+  --radius: 0.5rem;
+  
+  /* Terminal specific colors */
+  --terminal-green: hsl(120, 100%, 50%);
+  --terminal-blue: hsl(195, 100%, 50%);
+  --terminal-red: hsl(348, 100%, 50%);
+  --terminal-yellow: hsl(60, 100%, 50%);
+}
+
+.dark {
+  --background: hsl(0, 0%, 0%);
+  --foreground: hsl(120, 100%, 50%);
+  --muted: hsl(120, 50%, 15%);
+  --muted-foreground: hsl(120, 30%, 60%);
+  --popover: hsl(0, 0%, 0%);
+  --popover-foreground: hsl(120, 100%, 50%);
+  --card: hsl(0, 0%, 0%);
+  --card-foreground: hsl(120, 100%, 50%);
+  --border: hsl(120, 50%, 30%);
+  --input: hsl(120, 50%, 15%);
+  --primary: hsl(120, 100%, 50%);
+  --primary-foreground: hsl(0, 0%, 0%);
+  --secondary: hsl(120, 50%, 15%);
+  --secondary-foreground: hsl(120, 100%, 50%);
+  --accent: hsl(120, 50%, 15%);
+  --accent-foreground: hsl(120, 100%, 50%);
+  --destructive: hsl(0, 100%, 50%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --ring: hsl(120, 100%, 50%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground overflow-hidden;
+    font-family: 'VT323', monospace;
+  }
+}
+
+@layer utilities {
+  .font-terminal {
+    font-family: 'VT323', monospace;
+  }
+  
+  .font-pixel {
+    font-family: 'Press Start 2P', monospace;
+  }
+  
+  .text-terminal-green {
+    color: var(--terminal-green);
+  }
+  
+  .text-terminal-blue {
+    color: var(--terminal-blue);
+  }
+  
+  .text-terminal-red {
+    color: var(--terminal-red);
+  }
+  
+  .text-terminal-yellow {
+    color: var(--terminal-yellow);
+  }
+  
+  .bg-terminal-green {
+    background-color: var(--terminal-green);
+  }
+  
+  .bg-terminal-blue {
+    background-color: var(--terminal-blue);
+  }
+  
+  .bg-terminal-red {
+    background-color: var(--terminal-red);
+  }
+  
+  .bg-terminal-yellow {
+    background-color: var(--terminal-yellow);
+  }
+  
+  .border-terminal-green {
+    border-color: var(--terminal-green);
+  }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100vh); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes matrix {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(120vh); }
+}
+
+@keyframes typing {
+  from { opacity: 0.7; }
+  to { opacity: 1; }
+}
+
+@keyframes disco {
+  0% { background-color: var(--terminal-red); }
+  25% { background-color: var(--terminal-blue); }
+  50% { background-color: var(--terminal-yellow); }
+  75% { background-color: hsl(24, 100%, 50%); }
+  100% { background-color: hsl(270, 100%, 50%); }
+}
+
+.animate-blink {
+  animation: blink 1s infinite;
+}
+
+.animate-glitch {
+  animation: glitch 0.3s ease-in-out;
+}
+
+.animate-scanline {
+  animation: scanline 2s linear infinite;
+}
+
+.animate-matrix {
+  animation: matrix 20s linear infinite;
+}
+
+.animate-typing {
+  animation: typing 0.1s ease-in-out;
+}
+
+.animate-disco {
+  animation: disco 0.5s ease-in-out infinite alternate;
+}
+
+.crt-effect {
+  background: 
+    linear-gradient(transparent 0%, rgba(0, 255, 65, 0.03) 50%, transparent 100%),
+    linear-gradient(90deg, transparent 0%, rgba(0, 255, 65, 0.03) 50%, transparent 100%);
+  background-size: 100% 4px, 4px 100%;
+}
+
+.scanlines::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    transparent 0%,
+    rgba(0, 255, 65, 0.1) 1px,
+    transparent 2px
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.glow-text {
+  text-shadow: 
+    0 0 5px var(--terminal-green),
+    0 0 10px var(--terminal-green),
+    0 0 15px var(--terminal-green),
+    0 0 20px var(--terminal-green);
+}
+
+.terminal-glow {
+  box-shadow: 
+    inset 0 0 50px rgba(0, 255, 65, 0.1),
+    0 0 50px rgba(0, 255, 65, 0.05);
+}
+
+.matrix-rain {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.matrix-rain.active {
+  opacity: 1;
+}
+
+.matrix-column {
+  position: absolute;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: 'VT323', monospace;
+  font-size: 18px;
+  color: var(--terminal-green);
+  line-height: 1.2;
+  animation: matrix 10s linear infinite;
+  pointer-events: none;
+}
+
+.disco-mode {
+  animation: disco 0.5s ease-in-out infinite alternate;
+}
+
+.rickroll-ascii {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 2rem;
+  border: 2px solid var(--terminal-green);
+  border-radius: 10px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+}
+
+/* Custom scrollbar for terminal */
+.terminal-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.terminal-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 255, 65, 0.1);
+}
+
+.terminal-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--terminal-green);
+  border-radius: 4px;
+}
+
+.terminal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 65, 0.8);
+}
+
+/* Input focus styles */
+.terminal-input:focus {
+  outline: none;
+  caret-color: var(--terminal-green);
+}
+
+.terminal-input::placeholder {
+  color: rgba(0, 255, 65, 0.5);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .terminal-text {
+    font-size: 0.75rem;
+    line-height: 1.2;
+  }
+  
+  .font-pixel {
+    font-size: 0.5rem;
+  }
+}
