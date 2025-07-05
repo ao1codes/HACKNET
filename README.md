@@ -23,7 +23,7 @@ A retro terminal-based hacker simulation game built with React and TypeScript. N
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/hacknet.git
+git clone https://github.com/ao1codes/HACKNET
 cd hacknet
 ```
 
