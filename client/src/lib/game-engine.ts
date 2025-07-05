@@ -160,7 +160,7 @@ export class GameEngine {
     this.addOutput('sudo <cmd>  - Execute command as administrator');
     this.addOutput('clear       - Clear terminal (try asking nicely)');
     this.addOutput('eject       - Eject CD tray');
-    this.addOutput('leaderboard - View top hacker scores');
+    this.addOutput('leaderboard - View top HACKNET scores');
     this.addOutput('disconnect  - Return to local terminal');
     this.addOutput('───────────────────────────────────────');
     this.addOutput('EASTER EGGS: neo, rickroll, open ai, why am i here', 'text-terminal-blue');
