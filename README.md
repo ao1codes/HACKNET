@@ -88,8 +88,4 @@ Try these secret commands for fun effects:
 
 The game features a global leaderboard that tracks completion times. Try to beat other players' records!
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ---
