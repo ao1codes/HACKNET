@@ -32,7 +32,7 @@ cd hacknet
 npm install
 ```
 
-3. Set up environment variabless:
+3. Set up environment variables:
 ```bash
 # Create a .env file with your database URL and VITE API URL
 DATABASE_URL=your_database_url_here
