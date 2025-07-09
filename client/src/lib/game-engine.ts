@@ -244,6 +244,30 @@ export class GameEngine {
       return { success: true };
     }
 
+    if (dir === '..') {
+      // Go up one directory
+      if (this.state.currentPath === '~') {
+        this.addOutput('Already at home directory');
+        return { success: true };
+      }
+      let path = this.state.currentPath;
+      if (path.endsWith('/')) path = path.slice(0, -1);
+      const parts = path.split('/');
+      if (parts.length === 1) {
+        // Only one part, go to home
+        this.updateState({ currentPath: '~' });
+        this.addOutput('Changed to home directory');
+        return { success: true };
+      }
+      parts.pop();
+      let newPath = parts.join('/');
+      if (!newPath || newPath === '~') newPath = '~';
+      else if (!newPath.endsWith('/')) newPath += '/';
+      this.updateState({ currentPath: newPath });
+      this.addOutput(`Changed directory to ${newPath}`);
+      return { success: true };
+    }
+
     const server = gameServers[this.state.currentServer];
     if (!server) {
       this.addOutput('ERROR: Not connected to any server', 'text-terminal-red');
@@ -323,6 +347,10 @@ export class GameEngine {
 
     const filename = args[0];
     if (filename === 'project-x.omega.enc' || filename === 'project-x.omega') {
+      if (this.state.isWin) {
+        this.addOutput('You have already completed the mission! Reset the game to play again.', 'text-terminal-yellow');
+        return { success: false };
+      }
       if (this.state.keysFound.length >= 2) {
         this.addOutput('DECRYPTING PROJECT-X.OMEGA...', 'text-terminal-yellow');
         this.addOutput('Using key fragments: ' + this.state.keysFound.join(', '), 'text-terminal-green');
