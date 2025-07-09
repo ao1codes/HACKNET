@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { useTerminalGame } from '@/hooks/use-terminal-game';
 import { rickrollAscii } from '@/data/game-data';
@@ -138,33 +138,80 @@ export default function TerminalInterface() {
   );
 
 
+  // Matrix Rain Effect State & Logic
+  const MATRIX_COLUMN_COUNT = 40;
+  const MATRIX_CHARS = 20;
+  const MATRIX_SPEED_RANGE = [2, 5]; // seconds
+  const [matrixColumns, setMatrixColumns] = useState(() => {
+    // Initialize columns with random positions and speeds
+    return Array.from({ length: MATRIX_COLUMN_COUNT }, () => ({
+      left: Math.random(),
+      top: Math.random() * -1, // start above the screen
+      speed: MATRIX_SPEED_RANGE[0] + Math.random() * (MATRIX_SPEED_RANGE[1] - MATRIX_SPEED_RANGE[0]),
+      chars: Array.from({ length: MATRIX_CHARS }, () =>
+        String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96))
+      ),
+    }));
+  });
 
-  const renderMatrixEffect = () => {
+  // Animate columns
+  useEffect(() => {
+    if (!activeEffects.includes('matrix')) return;
+    let running = true;
+    let lastTime = performance.now();
+    const animate = (now: number) => {
+      if (!running) return;
+      const delta = (now - lastTime) / 1000;
+      lastTime = now;
+      setMatrixColumns(cols =>
+        cols.map(col => {
+          let newTop = col.top + delta / col.speed;
+          if (newTop > 1.1) {
+            // Reset column to top with new random values
+            return {
+              left: Math.random(),
+              top: Math.random() * -0.2,
+              speed: MATRIX_SPEED_RANGE[0] + Math.random() * (MATRIX_SPEED_RANGE[1] - MATRIX_SPEED_RANGE[0]),
+              chars: Array.from({ length: MATRIX_CHARS }, () =>
+                String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96))
+              ),
+            };
+          }
+          return { ...col, top: newTop };
+        })
+      );
+      requestAnimationFrame(animate);
+    };
+    const raf = requestAnimationFrame(animate);
+    return () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+  }, [activeEffects]);
+
+  const renderMatrixEffect = useCallback(() => {
     if (!activeEffects.includes('matrix')) return null;
-
-    const columns = Array.from({ length: 50 }, (_, i) => (
-      <div
-        key={i}
-        className="matrix-column"
-        style={{
-          left: `${Math.random() * 100}%`,
-          animationDelay: `${Math.random() * 5}s`
-        }}
-      >
-        {Array.from({ length: 20 }, (_, j) => (
-          <div key={j}>
-            {String.fromCharCode(0x30A0 + Math.random() * 96)}
+    return (
+      <div className="matrix-rain active">
+        {matrixColumns.map((col, i) => (
+          <div
+            key={i}
+            className="matrix-column"
+            style={{
+              left: `${col.left * 100}%`,
+              top: `${col.top * 100}%`,
+              height: `calc(100vh / ${MATRIX_CHARS})`,
+              transition: 'none',
+            }}
+          >
+            {col.chars.map((char, j) => (
+              <div key={j}>{char}</div>
+            ))}
           </div>
         ))}
       </div>
-    ));
-
-    return (
-      <div className="matrix-rain active">
-        {columns}
-      </div>
     );
-  };
+  }, [activeEffects, matrixColumns]);
 
   const renderRickrollModal = () => {
     if (!activeEffects.includes('rickroll')) return null;
