@@ -22,6 +22,7 @@ export default function TerminalInterface() {
   } = useTerminalGame();
 
   const [inputValue, setInputValue] = useState('');
+  const [historyIndex, setHistoryIndex] = useState<number | null>(null);
   const [usernameInput, setUsernameInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const usernameRef = useRef<HTMLInputElement>(null);
@@ -44,6 +45,7 @@ export default function TerminalInterface() {
     if (inputValue.trim()) {
       await processCommand(inputValue);
       setInputValue('');
+      setHistoryIndex(null);
     }
   };
 
@@ -152,7 +154,14 @@ export default function TerminalInterface() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const [matrixColumns, setMatrixColumns] = useState(() => {
+  type MatrixColumn = {
+    left: number;
+    top: number;
+    speed: number;
+    chars: string[];
+    active: boolean;
+  };
+  const [matrixColumns, setMatrixColumns] = useState<MatrixColumn[]>(() => {
     // Initialize columns with random positions and speeds
     return Array.from({ length: MATRIX_COLUMN_COUNT }, () => ({
       left: Math.random(),
@@ -161,6 +170,7 @@ export default function TerminalInterface() {
       chars: Array.from({ length: MATRIX_CHARS }, () =>
         String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96))
       ),
+      active: true,
     }));
   });
 
@@ -173,23 +183,24 @@ export default function TerminalInterface() {
       if (!running) return;
       const delta = (now - lastTime) / 1000;
       lastTime = now;
-      setMatrixColumns(cols =>
-        cols.map(col => {
+      setMatrixColumns(cols => {
+        let anyActive = false;
+        const next = cols.map(col => {
+          if (!col.active) return col;
           let newTop = col.top + col.speed * delta;
           if (newTop > viewportHeight) {
-            // Reset column to top with new random values
-            return {
-              left: Math.random(),
-              top: -COLUMN_HEIGHT,
-              speed: MATRIX_SPEED_RANGE[0] + Math.random() * (MATRIX_SPEED_RANGE[1] - MATRIX_SPEED_RANGE[0]),
-              chars: Array.from({ length: MATRIX_CHARS }, () =>
-                String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96))
-              ),
-            };
+            // Mark as inactive (do not respawn)
+            return { ...col, top: newTop, active: false };
           }
+          anyActive = true;
           return { ...col, top: newTop };
-        })
-      );
+        });
+        // If all columns are inactive, end the effect
+        if (!anyActive) {
+          setTimeout(() => closeEffect('matrix'), 500);
+        }
+        return next;
+      });
       requestAnimationFrame(animate);
     };
     const raf = requestAnimationFrame(animate);
@@ -197,27 +208,29 @@ export default function TerminalInterface() {
       running = false;
       cancelAnimationFrame(raf);
     };
-  }, [activeEffects, viewportHeight]);
+  }, [activeEffects, viewportHeight, closeEffect]);
 
   const renderMatrixEffect = useCallback(() => {
     if (!activeEffects.includes('matrix')) return null;
     return (
       <div className="matrix-rain active">
         {matrixColumns.map((col, i) => (
-          <div
-            key={i}
-            className="matrix-column"
-            style={{
-              left: `${col.left * 100}%`,
-              top: `${col.top}px`,
-              height: `${COLUMN_HEIGHT}px`,
-              transition: 'none',
-            }}
-          >
-            {col.chars.map((char, j) => (
-              <div key={j}>{char}</div>
-            ))}
-          </div>
+          col.active ? (
+            <div
+              key={i}
+              className="matrix-column"
+              style={{
+                left: `${col.left * 100}%`,
+                top: `${col.top}px`,
+                height: `${COLUMN_HEIGHT}px`,
+                transition: 'none',
+              }}
+            >
+              {col.chars.map((char, j) => (
+                <div key={j}>{char}</div>
+              ))}
+            </div>
+          ) : null
         ))}
       </div>
     );
@@ -398,10 +411,34 @@ export default function TerminalInterface() {
             ref={inputRef}
             type="text"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              setHistoryIndex(null);
+            }}
             onKeyDown={(e) => {
               if (e.key.length === 1) {
                 soundManager.play('typing');
+              }
+              if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const history = gameState.commandHistory;
+                if (!history.length) return;
+                let idx = historyIndex === null ? history.length - 1 : historyIndex - 1;
+                if (idx < 0) idx = 0;
+                setInputValue(history[idx] || '');
+                setHistoryIndex(idx);
+              } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                const history = gameState.commandHistory;
+                if (!history.length) return;
+                let idx = historyIndex === null ? history.length : historyIndex + 1;
+                if (idx >= history.length) {
+                  setInputValue('');
+                  setHistoryIndex(null);
+                } else {
+                  setInputValue(history[idx] || '');
+                  setHistoryIndex(idx);
+                }
               }
             }}
             className="flex-1 bg-transparent border-none outline-none text-terminal-green font-terminal terminal-input"
