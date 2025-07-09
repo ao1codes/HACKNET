@@ -66,7 +66,8 @@ export class GameEngine {
 
   private addOutput(text: string, className?: string, isCommand = false) {
     this.outputs.push({ text, className, isCommand });
-    this.onOutputChange?.(this.outputs);
+    // Always pass a new array reference to trigger React updates
+    this.onOutputChange?.([...this.outputs]);
 
     // Play the right sound effects
     if (text.includes('ERROR') || text.includes('DENIED')) {
