@@ -117,6 +117,7 @@ export default function TerminalInterface() {
               placeholder="anonymous"
               maxLength={20}
               autoFocus
+              aria-label="Enter your hacker alias"
             />
           </div>
           <Button
@@ -349,6 +350,7 @@ export default function TerminalInterface() {
             className="flex-1 bg-transparent border-none outline-none text-terminal-green font-terminal terminal-input"
             placeholder="Enter command..."
             autoComplete="off"
+            aria-label="Enter terminal command"
           />
           <span className="text-terminal-green animate-blink ml-1">▋</span>
         </form>
