@@ -141,12 +141,22 @@ export default function TerminalInterface() {
   // Matrix Rain Effect State & Logic
   const MATRIX_COLUMN_COUNT = 40;
   const MATRIX_CHARS = 20;
-  const MATRIX_SPEED_RANGE = [2, 5]; // seconds
+  const FONT_SIZE = 18; // px, should match .matrix-column font-size in CSS
+  const COLUMN_HEIGHT = MATRIX_CHARS * FONT_SIZE * 1.2; // px, line-height 1.2
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+  const MATRIX_SPEED_RANGE = [80, 180]; // pixels per second
+
+  useEffect(() => {
+    const handleResize = () => setViewportHeight(window.innerHeight);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [matrixColumns, setMatrixColumns] = useState(() => {
     // Initialize columns with random positions and speeds
     return Array.from({ length: MATRIX_COLUMN_COUNT }, () => ({
       left: Math.random(),
-      top: Math.random() * -1, // start above the screen
+      top: -COLUMN_HEIGHT,
       speed: MATRIX_SPEED_RANGE[0] + Math.random() * (MATRIX_SPEED_RANGE[1] - MATRIX_SPEED_RANGE[0]),
       chars: Array.from({ length: MATRIX_CHARS }, () =>
         String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96))
@@ -165,12 +175,12 @@ export default function TerminalInterface() {
       lastTime = now;
       setMatrixColumns(cols =>
         cols.map(col => {
-          let newTop = col.top + delta / col.speed;
-          if (newTop > 1.1) {
+          let newTop = col.top + col.speed * delta;
+          if (newTop > viewportHeight) {
             // Reset column to top with new random values
             return {
               left: Math.random(),
-              top: Math.random() * -0.2,
+              top: -COLUMN_HEIGHT,
               speed: MATRIX_SPEED_RANGE[0] + Math.random() * (MATRIX_SPEED_RANGE[1] - MATRIX_SPEED_RANGE[0]),
               chars: Array.from({ length: MATRIX_CHARS }, () =>
                 String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96))
@@ -187,7 +197,7 @@ export default function TerminalInterface() {
       running = false;
       cancelAnimationFrame(raf);
     };
-  }, [activeEffects]);
+  }, [activeEffects, viewportHeight]);
 
   const renderMatrixEffect = useCallback(() => {
     if (!activeEffects.includes('matrix')) return null;
@@ -199,8 +209,8 @@ export default function TerminalInterface() {
             className="matrix-column"
             style={{
               left: `${col.left * 100}%`,
-              top: `${col.top * 100}%`,
-              height: `calc(100vh / ${MATRIX_CHARS})`,
+              top: `${col.top}px`,
+              height: `${COLUMN_HEIGHT}px`,
               transition: 'none',
             }}
           >
@@ -211,7 +221,7 @@ export default function TerminalInterface() {
         ))}
       </div>
     );
-  }, [activeEffects, matrixColumns]);
+  }, [activeEffects, matrixColumns, COLUMN_HEIGHT]);
 
   const renderRickrollModal = () => {
     if (!activeEffects.includes('rickroll')) return null;
